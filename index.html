@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+var AudioContext = window.AudioContext || window.webkitAudioContext;
+let q={},d=document;
+q.ce=function(h){return d.createElement(h);};
+q.ge=function(i){return d.getElementById(i);};
+Array.prototype.back=function(){return this.length==0?undefined:this[this.length-1];};
+HTMLElement.prototype.ac=function(c){this.appendChild(c); return this;};
+HTMLElement.prototype.ga=function(a){return this.getAttribute(a);};
+HTMLElement.prototype.sa=function(a,v){this.setAttribute(a,v);return this;};
+HTMLElement.prototype.at=function(t){this.ac(d.createTextNode(t));return this;};
+HTMLElement.prototype.ra=function(n){let arr=this.childNodes;while(arr.length!=0&&arr.length>n)this.removeChild(arr[arr.length-1]);return this;};
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const keys=['A','S','E','D','R','F','G','Y','H','U','J','I','K','L'];
+const keysOri=[]; for(let x=0;x!==keys.length;++x) keysOri[x]=keys[x];
+	for(let x=keys.length;x--;) keys[x]=keys[x].charCodeAt();
+const keysDown=[]; keysDown.length=keys.length;
+const keysRecover=[]; keysRecover.length=keys.length;
+const freqs=[];
+	for(let x=-1;x!=9;++x) freqs.push(Math.pow(2,(x-9)/12.0)*440);
+	freqs.push(440);
+	for(let x=10;x!=13;++x) freqs.push(Math.pow(2,(x-9)/12.0)*440);
+
+let audioCtxs = [];
+let gainNodes = [];
+let oscillators = [];
+for(let x=0;x!==keys.length;++x){
+	let audioCtx = new AudioContext();
+	audioCtxs.push(audioCtx);
+	let gainNode = new GainNode(audioCtx,{gain:0});
+	gainNode.connect(audioCtx.destination);
+	gainNodes.push(gainNode);
+	let oscillator = new OscillatorNode(audioCtx,{detune:0,frequency:freqs[x],type:"triangle"});
+	oscillator.connect(gainNode);
+	oscillators.push(oscillator);
+}
+for(let x=oscillators.length;x--;) oscillators[x].start(0);
+
+document.body.addEventListener('keydown',(evt)=>{
+	//if(evt.isComposing){return;}
+	let key=evt.keyCode;
+	let id=keys.indexOf(key);
+	if(id===-1){return;}
+	let down=keysDown[id];
+	keysDown[id]=1;
+	
+	if(audioCtxs[id].state==="suspended") audioCtxs[id].resume();
+	if(keysRecover[id]){ clearInterval(keysRecover[id]); keysRecover[id]=0; }
+	if(!down) gainNodes[id].gain.value=1;
+});
+document.body.addEventListener('keyup',(evt)=>{
+	//if(evt.isComposing){return;}
+	let key=evt.keyCode;
+	let id=keys.indexOf(key);
+	if(id===-1){return;}
+	keysDown[id]=0;
+	
+	//gainNodes[id].gain.value=0;
+	let itvl=setInterval(function(){
+		let val=gainNodes[id].gain.value;
+		val-=0.0078125;
+		if(val<0){ keysRecover[id]=0; val=0; clearInterval(itvl); }
+		if(!keysDown[id]) gainNodes[id].gain.value=val;
+	},1);
+	keysRecover[id]=itvl;
+});
+q.ge("root").at(JSON.stringify(keysOri));
+</script>
+</body>
+</html>
