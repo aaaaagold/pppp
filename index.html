@@ -42,33 +42,68 @@ for(let x=0;x!==keys.length;++x){
 }
 for(let x=oscillators.length;x--;) oscillators[x].start(0);
 
+let keydown=(id)=>{
+	let alreadyDown=keysDown[id];
+	keysDown[id]=1;
+	
+	if(audioCtxs[id].state==="suspended") audioCtxs[id].resume();
+	if(keysRecover[id]){ clearInterval(keysRecover[id]); keysRecover[id]=0; }
+	if(!alreadyDown){
+		gainNodes[id].gain.value=1;
+		seq.push([id,"down",new Date().getTime()]);
+	}
+};
+let keyup=(id)=>{
+	keysDown[id]=0;
+	
+	//gainNodes[id].gain.value=0;
+	let itvl=setInterval(function(){
+		let val=gainNodes[id].gain.value;
+		//val-=0.0078125;
+		val*=0.984375;
+		if(val<1e-4){ keysRecover[id]=0; val=0; clearInterval(itvl); }
+		if(!keysDown[id]) gainNodes[id].gain.value=val;
+	},1);
+	keysRecover[id]=itvl;
+	seq.push([id,"up",new Date().getTime()]);
+};
+
+let seq=[];
+let playseq=(seq)=>{
+	let baseTime=seq[0][2],basefoo=()=>{};
+	let playone=(kid,upordown)=>{
+		let foo=basefoo;
+		if(upordown==="down") foo=keydown;
+		if(upordown==="up") foo=keyup;
+		foo(kid);
+	};
+	let prepare=(sid,baseTime)=>{
+		if(sid===seq.length){ console.log("seq end"); return; }
+		let kid=seq[sid][0];
+		let upordown=seq[sid][1];
+		setTimeout(()=>{
+			playone(kid,upordown);
+			prepare(sid+1,seq[sid][2]);
+		},seq[sid][2]-baseTime);
+	};
+	prepare(0,baseTime);
+};
+
 document.body.addEventListener('keydown',(evt)=>{
 	//if(evt.isComposing){return;}
 	let key=evt.keyCode;
 	let id=keys.indexOf(key);
 	if(id===-1){return;}
-	let down=keysDown[id];
-	keysDown[id]=1;
 	
-	if(audioCtxs[id].state==="suspended") audioCtxs[id].resume();
-	if(keysRecover[id]){ clearInterval(keysRecover[id]); keysRecover[id]=0; }
-	if(!down) gainNodes[id].gain.value=1;
+	keydown(id);
 });
 document.body.addEventListener('keyup',(evt)=>{
 	//if(evt.isComposing){return;}
 	let key=evt.keyCode;
 	let id=keys.indexOf(key);
 	if(id===-1){return;}
-	keysDown[id]=0;
 	
-	//gainNodes[id].gain.value=0;
-	let itvl=setInterval(function(){
-		let val=gainNodes[id].gain.value;
-		val-=0.0078125;
-		if(val<0){ keysRecover[id]=0; val=0; clearInterval(itvl); }
-		if(!keysDown[id]) gainNodes[id].gain.value=val;
-	},1);
-	keysRecover[id]=itvl;
+	keyup(id);
 });
 q.ge("root").at(JSON.stringify(keysOri));
 </script>
