@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+<style>
+.btn:hover{background-color:rgba(123,123,0,0.5);}
+</style>
 <script>
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 let q={},d=document;
@@ -15,8 +18,11 @@ HTMLElement.prototype.ra=function(n){let arr=this.childNodes;while(arr.length!=0
 </script>
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div id="keys"></div><div id="currPitchDelta">0</div><div id="btns"></div><div id="rec"></div></div>
 <script>
+// divs
+const currPitchDelta=q.ge("currPitchDelta");
+// divs end
 //const keys=['A','S','E','D','R','F','G','Y','H','U','J','I','K','L']; // until ver. @ 2019/11/04
 const keys=[
 	'Z','X','D','C','F','Q','2','W', // Mi ... Si
@@ -29,11 +35,22 @@ const keysOri=[]; for(let x=0;x!==keys.length;++x) keysOri[x]=keys[x];
 const keysDown=[]; keysDown.length=keys.length;
 const keysRecover=[]; keysRecover.length=keys.length;
 const freqs=[]; for(let x=0;x<keys.length;++x) freqs.push(Math.pow(2,(x-Hz440id)/12.0)*440);
+freqs.delta=0;
 console.log(freqs[Hz440id]); // debug
 
 let audioCtxs = [];
 let gainNodes = [];
 let oscillators = [];
+	oscillators.reset=()=>{
+		let r=Math.pow(2,freqs.delta/12.0);
+		for(let x=0;x!==oscillators.length;++x){
+			let oscillator = new OscillatorNode(audioCtxs[x],{detune:0,frequency:freqs[x]*r,type:"triangle"});
+			oscillator.start(0);
+			oscillators[x].disconnect(gainNodes[x]);
+			oscillator.connect(gainNodes[x]);
+			oscillators[x]=oscillator;
+		}
+	};
 for(let x=0;x!==keys.length;++x){
 	let audioCtx = new AudioContext();
 	audioCtxs.push(audioCtx);
@@ -44,7 +61,7 @@ for(let x=0;x!==keys.length;++x){
 	oscillator.connect(gainNode);
 	oscillators.push(oscillator);
 }
-for(let x=oscillators.length;x--;) oscillators[x].start(0);
+for(let x=0;x!==oscillators.length;++x) oscillators[x].start(0);
 
 let keydown=(id)=>{
 	let alreadyDown=keysDown[id];
@@ -54,7 +71,7 @@ let keydown=(id)=>{
 	if(keysRecover[id]){ clearInterval(keysRecover[id]); keysRecover[id]=0; }
 	if(!alreadyDown){
 		gainNodes[id].gain.value=1;
-		seq.push([id,"down",new Date().getTime()]);
+		seq.push([id-Hz440id,"down",new Date().getTime()]);
 	}
 };
 let keyup=(id)=>{
@@ -69,7 +86,7 @@ let keyup=(id)=>{
 		if(!keysDown[id]) gainNodes[id].gain.value=val;
 	},1);
 	keysRecover[id]=itvl;
-	seq.push([id,"up",new Date().getTime()]);
+	seq.push([id-Hz440id,"up",new Date().getTime()]);
 };
 
 let seq=[];
@@ -83,7 +100,7 @@ let playseq=(seq)=>{
 	};
 	let prepare=(sid,baseTime)=>{
 		if(sid===seq.length){ console.log("seq end"); return; }
-		let kid=seq[sid][0];
+		let kid=seq[sid][0]+Hz440id;
 		let upordown=seq[sid][1];
 		setTimeout(()=>{
 			playone(kid,upordown);
@@ -97,7 +114,26 @@ document.body.addEventListener('keydown',(evt)=>{
 	//if(evt.isComposing){return;}
 	let key=evt.keyCode;
 	let id=keys.indexOf(key);
-	if(id===-1){return;}
+	if(id===-1){
+		// alt functions
+		switch(key)
+		{
+		default:
+			break;
+		// pitch higher / lower
+		case 38:
+			freqs.delta+=1;
+			oscillators.reset();
+			currPitchDelta.ra(0).at(""+freqs.delta);
+			break;
+		case 40:
+			freqs.delta-=1;
+			oscillators.reset();
+			currPitchDelta.ra(0).at(""+freqs.delta);
+			break;
+		}
+		return;
+	}
 	
 	keydown(id);
 });
@@ -105,11 +141,35 @@ document.body.addEventListener('keyup',(evt)=>{
 	//if(evt.isComposing){return;}
 	let key=evt.keyCode;
 	let id=keys.indexOf(key);
-	if(id===-1){return;}
+	if(id===-1){
+		return;
+	}
 	
 	keyup(id);
 });
-q.ge("root").at(JSON.stringify(keysOri));
+q.ge("keys").at(JSON.stringify(keysOri));
+q.ge("btns").ac(
+	(()=>{
+		let div=q.ce("div").sa("class","btn").at("input record");
+		div.onclick=()=>{
+			let rec=prompt("paste your record below");
+			if(rec!==null) playseq(JSON.parse(rec));
+		};
+		return div;
+	})()
+).ac(
+	(()=>{
+		let div=q.ce("div").sa("class","btn").at("update record");
+		div.onclick=()=>{q.ge("rec").ra(0).at(JSON.stringify(seq))};
+		return div;
+	})()
+).ac(
+	(()=>{
+		let div=q.ce("div").sa("class","btn").at("clear record");
+		div.onclick=()=>{seq.length=0;};
+		return div;
+	})()
+);
 </script>
 </body>
 </html>
