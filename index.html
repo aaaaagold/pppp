@@ -18,7 +18,7 @@ HTMLElement.prototype.ra=function(n){let arr=this.childNodes;while(arr.length!=0
 </script>
 </head>
 <body>
-<div id="root"><div id="keys"></div><div id="currPitchDelta">0</div><div id="btns"></div><div id="rec"></div></div>
+<div id="root"><div id="keys"></div><div>currPitchDelta <input id="currPitchDelta" type=number value=0></div><div id="btns"></div><div id="rec">[]</div></div>
 <script>
 const baseTime=new Date().getTime();
 // divs
@@ -37,6 +37,16 @@ const keysDown=[]; keysDown.length=keys.length;
 const keysRecover=[]; keysRecover.length=keys.length;
 const freqs=[]; for(let x=0;x<keys.length;++x) freqs.push(Math.pow(2,(x-Hz440id)/12.0)*440);
 freqs.delta=0;
+currPitchDelta.onchange=()=>{
+	let tmp=currPitchDelta.value.match(/-?[0-9]+/);
+	if(tmp!==null) freqs.change_to(parseInt(tmp[0]));
+};
+freqs._change_common=()=>{
+	oscillators.reset();
+	currPitchDelta.ra(0).at(""+freqs.delta);
+};
+freqs.change_to=(n)=>{ freqs.delta=n; freqs._change_common(); };
+freqs.change_delta=(n)=>{ freqs.delta+=n; freqs._change_common(); };
 console.log(freqs[Hz440id]); // debug
 
 let audioCtxs = [];
@@ -91,22 +101,32 @@ let keyup=(id)=>{
 };
 
 let seq=[];
+let seqs=[]; // array of seq, appended when clear
+let stopseq=1;
+let queuingseq={},queuingseq_serial=0;
 let playseq=(seq)=>{
+	stopseq&=0;
 	let baseTime=seq[0][2],basefoo=()=>{};
 	let playone=(kid,upordown)=>{
+		if(stopseq) return;
 		let foo=basefoo;
 		if(upordown==="down") foo=keydown;
 		if(upordown==="up") foo=keyup;
 		foo(kid);
 	};
 	let prepare=(sid,baseTime)=>{
+		if(stopseq) return;
 		if(sid===seq.length){ console.log("seq end"); return; }
+		let nextTime=(("string"===typeof seq[sid][2])&&seq[sid][2][0]==="+")?parseInt(seq[sid][2]):(seq[sid][2]-baseTime);
 		let kid=seq[sid][0]+Hz440id;
 		let upordown=seq[sid][1];
-		setTimeout(()=>{
+		let serial=queuingseq_serial; ++queuingseq_serial; queuingseq_serial&=0xffff;
+		let x=setTimeout(()=>{
+			delete queuingseq[serial];
 			playone(kid,upordown);
-			prepare(sid+1,seq[sid][2]);
-		},seq[sid][2]-baseTime);
+			prepare(sid+1,baseTime+nextTime);
+		},nextTime);
+		queuingseq[serial]=x;
 	};
 	prepare(0,baseTime);
 };
@@ -123,14 +143,12 @@ document.body.addEventListener('keydown',(evt)=>{
 			break;
 		// pitch higher / lower
 		case 38:
-			freqs.delta+=1;
-			oscillators.reset();
-			currPitchDelta.ra(0).at(""+freqs.delta);
+			freqs.change_delta(1);
+			currPitchDelta.value=parseInt(currPitchDelta.value)+1;
 			break;
 		case 40:
-			freqs.delta-=1;
-			oscillators.reset();
-			currPitchDelta.ra(0).at(""+freqs.delta);
+			freqs.change_delta(-1);
+			currPitchDelta.value=parseInt(currPitchDelta.value)-1;
 			break;
 		}
 		return;
@@ -151,11 +169,27 @@ document.body.addEventListener('keyup',(evt)=>{
 q.ge("keys").at(JSON.stringify(keysOri));
 q.ge("btns").ac(
 	(()=>{
-		let div=q.ce("div").sa("class","btn").at("input record");
+		let div=q.ce("div").sa("class","btn").at("input and play record");
 		div.onclick=()=>{
 			let rec=prompt("paste your record below");
 			if(rec!==null) playseq(JSON.parse(rec));
 		};
+		return div;
+	})()
+).ac(
+	(()=>{
+		let div=q.ce("div").sa("class","btn").at("stop playing record");
+		div.onclick=()=>{
+			stopseq|=1;
+			for(let x=0;x!==keysDown.length;++x) if(keysDown[x]) keyup(x);
+			for(let i in queuingseq) clearTimeout(queuingseq[i]);
+		};
+		return div;
+	})()
+).ac(
+	(()=>{
+		let div=q.ce("div").sa("class","btn").at("clear record");
+		div.onclick=()=>{seqs.push(seq);seq=[];};
 		return div;
 	})()
 ).ac(
@@ -166,8 +200,13 @@ q.ge("btns").ac(
 	})()
 ).ac(
 	(()=>{
-		let div=q.ce("div").sa("class","btn").at("clear record");
-		div.onclick=()=>{seq.length=0;};
+		let div=q.ce("div").sa("class","btn").at("update record (delta timing)");
+		div.onclick=()=>{
+			if(!seq.length) return;
+			let output=[[seq[0][0],seq[0][1],0]];
+			for(let x=1;x!==seq.length;++x) output.push([seq[x][0],seq[x][1],"+"+(seq[x][2]-seq[x-1][2])]);
+			q.ge("rec").ra(0).at(JSON.stringify(output));
+		};
 		return div;
 	})()
 );
