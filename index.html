@@ -20,6 +20,7 @@ HTMLElement.prototype.ra=function(n){let arr=this.childNodes;while(arr.length!=0
 <body>
 <div id="root"><div id="keys"></div><div id="currPitchDelta">0</div><div id="btns"></div><div id="rec"></div></div>
 <script>
+const baseTime=new Date().getTime();
 // divs
 const currPitchDelta=q.ge("currPitchDelta");
 // divs end
@@ -71,7 +72,7 @@ let keydown=(id)=>{
 	if(keysRecover[id]){ clearInterval(keysRecover[id]); keysRecover[id]=0; }
 	if(!alreadyDown){
 		gainNodes[id].gain.value=1;
-		seq.push([id-Hz440id,"down",new Date().getTime()]);
+		seq.push([id-Hz440id,"down",new Date().getTime()-baseTime]);
 	}
 };
 let keyup=(id)=>{
@@ -86,7 +87,7 @@ let keyup=(id)=>{
 		if(!keysDown[id]) gainNodes[id].gain.value=val;
 	},1);
 	keysRecover[id]=itvl;
-	seq.push([id-Hz440id,"up",new Date().getTime()]);
+	seq.push([id-Hz440id,"up",new Date().getTime()-baseTime]);
 };
 
 let seq=[];
