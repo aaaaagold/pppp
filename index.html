@@ -17,15 +17,19 @@ HTMLElement.prototype.ra=function(n){let arr=this.childNodes;while(arr.length!=0
 <body>
 <div id="root"></div>
 <script>
-const keys=['A','S','E','D','R','F','G','Y','H','U','J','I','K','L'];
+//const keys=['A','S','E','D','R','F','G','Y','H','U','J','I','K','L']; // until ver. @ 2019/11/04
+const keys=[
+	'Z','X','D','C','1','Q','2','W', // Mi ... Si
+	'E','4','R','5','T','Y','7','U','8','I','9','O','P', // Do ... Do
+	'F','V','G','B','N','J','M', // Do# ...
+]; // dev.er setting
+const Hz440id=keys.indexOf('I'); // dev.er setting
 const keysOri=[]; for(let x=0;x!==keys.length;++x) keysOri[x]=keys[x];
-	for(let x=keys.length;x--;) keys[x]=keys[x].charCodeAt();
+	for(let x=keys.length;x--;) if(typeof keys[x]==="string") keys[x]=keys[x].charCodeAt();
 const keysDown=[]; keysDown.length=keys.length;
 const keysRecover=[]; keysRecover.length=keys.length;
-const freqs=[];
-	for(let x=-1;x!=9;++x) freqs.push(Math.pow(2,(x-9)/12.0)*440);
-	freqs.push(440);
-	for(let x=10;x!=13;++x) freqs.push(Math.pow(2,(x-9)/12.0)*440);
+const freqs=[]; for(let x=0;x<keys.length;++x) freqs.push(Math.pow(2,(x-Hz440id)/12.0)*440);
+console.log(freqs[Hz440id]); // debug
 
 let audioCtxs = [];
 let gainNodes = [];
