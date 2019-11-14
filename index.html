@@ -100,7 +100,7 @@ let keyup=(id)=>{
 	seq.push([id-Hz440id,"up",new Date().getTime()-baseTime]);
 };
 
-let seq=[];
+let seq=[]; // [[delta number of 2**(1/12) to Hz440,up_or_down,timing,use_delta?]]
 let seqs=[]; // array of seq, appended when clear
 let stopseq=1;
 let queuingseq={},queuingseq_serial=0;
@@ -117,7 +117,8 @@ let playseq=(seq)=>{
 	let prepare=(sid,baseTime)=>{
 		if(stopseq) return;
 		if(sid===seq.length){ console.log("seq end"); return; }
-		let nextTime=(("string"===typeof seq[sid][2])&&seq[sid][2][0]==="+")?parseInt(seq[sid][2]):(seq[sid][2]-baseTime);
+		//let nextTime=(("string"===typeof seq[sid][2])&&seq[sid][2][0]==="+")?parseInt(seq[sid][2]):(seq[sid][2]-baseTime);
+		let nextTime=(seq[sid][2]-(1^seq[sid][3])*baseTime);
 		let kid=seq[sid][0]+Hz440id;
 		let upordown=seq[sid][1];
 		let serial=queuingseq_serial; ++queuingseq_serial; queuingseq_serial&=0xffff;
@@ -204,7 +205,7 @@ q.ge("btns").ac(
 		div.onclick=()=>{
 			if(!seq.length) return;
 			let output=[[seq[0][0],seq[0][1],0]];
-			for(let x=1;x!==seq.length;++x) output.push([seq[x][0],seq[x][1],"+"+(seq[x][2]-seq[x-1][2])]);
+			for(let x=1;x!==seq.length;++x) output.push([seq[x][0],seq[x][1],(seq[x][2]-seq[x-1][2]),1]);
 			q.ge("rec").ra(0).at(JSON.stringify(output));
 		};
 		return div;
