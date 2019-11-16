@@ -8,11 +8,12 @@ if(!Array.concat) Array.concat=function(arr){
 let rnd=(clip)=>{
 	if(clip===undefined) clip=[-Hz440id,freqs.length-1-Hz440id];
 	let rtv=[],clip_min=clip[0],clip_max=clip[1];
-	let lastpitch,dir;
+	let lastpitch,dir,samedircnt=0;
 	for(let x=11;x--;)
 	{
 		let hzid=parseInt(Math.random()*12)-(Hz440id-9); // Do~
-		if(dir!==undefined  && Math.random()<0.5)
+		let r=Math.random()<0.5*Math.pow(2,-samedircnt); samedircnt+=r; samedircnt*=r;
+		if(dir!==undefined  && r)
 		{
 			hzid+=dir;
 		}
