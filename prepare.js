@@ -84,6 +84,7 @@ let seqs=[]; // array of seq, appended when clear
 let stopseq=1;
 let queuingseq={},queuingseq_serial=0;
 let playseq=(seq)=>{
+	if(!seq.length) return;
 	stopseq&=0;
 	let baseTime=seq[0][2],basefoo=()=>{};
 	let playone=(kid,upordown)=>{
