@@ -69,7 +69,7 @@ q.ge("btns").ac(
 		let div=q.ce("div").sa("class","btn").at("update record (delta timing)");
 		div.onclick=()=>{
 			if(!seq.length) return;
-			let output=[[seq[0][0],seq[0][1],0]];
+			let output=[[seq[0][0],seq[0][1],100,1]];
 			for(let x=1;x!==seq.length;++x) output.push([seq[x][0],seq[x][1],(seq[x][2]-seq[x-1][2]),1]);
 			q.ge("rec").ra(0).at(JSON.stringify(output));
 		};
