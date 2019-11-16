@@ -101,6 +101,7 @@ let keyup=(id)=>{
 };
 
 let seq=[]; // [[delta number of 2**(1/12) to Hz440,up_or_down,timing,use_delta?]]
+let lastInput=[];
 let seqs=[]; // array of seq, appended when clear
 let stopseq=1;
 let queuingseq={},queuingseq_serial=0;
@@ -115,8 +116,7 @@ let playseq=(seq)=>{
 		foo(kid);
 	};
 	let prepare=(sid,baseTime)=>{
-		if(stopseq) return;
-		if(sid===seq.length){ console.log("seq end"); return; }
+		if(stopseq|(sid===seq.length)){ console.log("seq end"); return; }
 		//let nextTime=(("string"===typeof seq[sid][2])&&seq[sid][2][0]==="+")?parseInt(seq[sid][2]):(seq[sid][2]-baseTime);
 		let nextTime=(seq[sid][2]-(1^seq[sid][3])*baseTime);
 		let kid=seq[sid][0]+Hz440id;
@@ -173,7 +173,8 @@ q.ge("btns").ac(
 		let div=q.ce("div").sa("class","btn").at("input and play record");
 		div.onclick=()=>{
 			let rec=prompt("paste your record below");
-			if(rec!==null) playseq(JSON.parse(rec));
+			lastInput=JSON.parse(rec);
+			if(rec!==null) playseq(lastInput);
 		};
 		return div;
 	})()
@@ -185,6 +186,12 @@ q.ge("btns").ac(
 			for(let x=0;x!==keysDown.length;++x) if(keysDown[x]) keyup(x);
 			for(let i in queuingseq) clearTimeout(queuingseq[i]);
 		};
+		return div;
+	})()
+).ac(
+	(()=>{
+		let div=q.ce("div").sa("class","btn").at("replay last input record");
+		div.onclick=()=>{ playseq(lastInput); };
 		return div;
 	})()
 ).ac(
