@@ -5,11 +5,12 @@ if(!Array.concat) Array.concat=function(arr){
 	for(let x=0;x!==dup.length;++x) rtv.push(dup[x]);
 	return rtv;
 };
-let rnd=(clip)=>{
+let rnd=(cnt,clip)=>{
+	if(cnt===undefined) cnt=11;
 	if(clip===undefined) clip=[-Hz440id,freqs.length-1-Hz440id];
 	let rtv=[],clip_min=clip[0],clip_max=clip[1];
 	let lastpitch,dir,samedircnt=0;
-	for(let x=11;x--;)
+	for(let x=cnt;x--;)
 	{
 		let hzid=parseInt(Math.random()*12)-(Hz440id-9); // Do~
 		let r=Math.random()<0.5*Math.pow(2,-samedircnt); samedircnt+=r; samedircnt*=r;

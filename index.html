@@ -3,6 +3,8 @@
 <head>
 <style>
 .btn:hover{background-color:rgba(123,123,0,0.5);}
+.inaline>*{display:inline-block;}
+.sparse22>*{margin:22px;}
 </style>
 <script>
 var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -18,7 +20,7 @@ HTMLElement.prototype.ra=function(n){let arr=this.childNodes;while(arr.length!=0
 </script>
 </head>
 <body>
-<div id="root"><div id="keys"></div><div>currPitchDelta <input id="currPitchDelta" type=number value=0></div><div id="btns"></div><div id="rec">[]</div></div>
+<div id="root"><div id="keys"></div><div>currPitchDelta <input id="currPitchDelta" type=number value=0></div><div id="btns" class="sparse22"></div><div id="rec">[]</div></div>
 <script src="prepare.js"></script>
 <script src="rnd.js"></script>
 <script>
@@ -77,15 +79,15 @@ q.ge("btns").ac(
 	})()
 ).ac(
 	(()=>{
-		let div=q.ce("div").sa("class","btn").at("random");
+		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","11");
 		div.onclick=()=>{
-			arr=rnd();
+			arr=rnd(parseInt(cnt.value));
 			arr2=arr.concat(shift(arr,6)).concat(arr);//.concat(shift(arr,-12));
 			playseq(arr);
 			console.log(JSON.stringify(arr));
 			console.log(JSON.stringify(arr2));
 		};
-		return div;
+		return q.ce("div").ac(div).at("count ").ac(cnt);
 	})()
 );
 </script>
