@@ -41,17 +41,13 @@ q.ge("btns").ac(
 ).ac(
 	(()=>{
 		let div=q.ce("div").sa("class","btn").at("stop playing record");
-		div.onclick=()=>{
-			stopseq|=1;
-			for(let x=0;x!==keysDown.length;++x) if(keysDown[x]) keyup(x);
-			for(let i in queuingseq) clearTimeout(queuingseq[i]);
-		};
+		div.onclick=()=>{playseq.stop();};
 		return div;
 	})()
 ).ac(
 	(()=>{
 		let div=q.ce("div").sa("class","btn").at("replay last input record");
-		div.onclick=()=>{ playseq(lastInput); };
+		div.onclick=()=>{playseq(lastInput);};
 		return div;
 	})()
 ).ac(
@@ -63,31 +59,36 @@ q.ge("btns").ac(
 ).ac(
 	(()=>{
 		let div=q.ce("div").sa("class","btn").at("update record");
-		div.onclick=()=>{q.ge("rec").ra(0).at(JSON.stringify(seq))};
+		div.onclick=()=>{putseq(q.ge("rec"),seq);};
 		return div;
 	})()
 ).ac(
 	(()=>{
 		let div=q.ce("div").sa("class","btn").at("update record (delta timing)");
-		div.onclick=()=>{
-			if(!seq.length) return;
-			let output=[[seq[0][0],seq[0][1],100,1]];
-			for(let x=1;x!==seq.length;++x) output.push([seq[x][0],seq[x][1],(seq[x][2]-seq[x-1][2]),1]);
-			q.ge("rec").ra(0).at(JSON.stringify(output));
-		};
+		div.onclick=()=>{putseq(q.ge("rec"),seq_abs2dlt(seq));};
 		return div;
 	})()
 ).ac(
 	(()=>{
-		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","11");
+		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300");
+		let last_rpl=q.ce("div").sa("class","btn").at("replay last random");
+		let last_abs=q.ce("div").sa("class","btn").at("update last random");
+		let last_dlt=q.ce("div").sa("class","btn").at("update last random (delta timing)");
 		div.onclick=()=>{
-			arr=rnd(parseInt(cnt.value));
-			arr2=arr.concat(shift(arr,6)).concat(arr);//.concat(shift(arr,-12));
-			playseq(arr);
+			div.last_time=new Date().getTime()-baseTime;
+			div.last_seq=rnd(parseInt(cnt.value));
+			playseq(div.last_seq);
+			// ----
+			arr=div.last_seq;
 			console.log(JSON.stringify(arr));
-			console.log(JSON.stringify(arr2));
+			// ----
+			//arr2=arr.concat(shift(arr,6)).concat(arr);//.concat(shift(arr,-12));
+			//console.log(JSON.stringify(arr2));
 		};
-		return q.ce("div").ac(div).at("count ").ac(cnt);
+		last_rpl.onclick=()=>{playseq.stop();playseq(div.last_seq);};
+		last_abs.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,div.last_time));};
+		last_dlt.onclick=()=>{putseq(q.ge("rec"),div.last_seq);};
+		return q.ce("div").ac(div).at("count ").ac(cnt).ac(last_rpl).ac(last_abs).ac(last_dlt);
 	})()
 );
 </script>

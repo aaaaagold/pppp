@@ -81,6 +81,22 @@ let keyup=(id)=>{
 let seq=[]; // [[delta number of 2**(1/12) to Hz440,up_or_down,timing,use_delta?]]
 let lastInput=[];
 let seqs=[]; // array of seq, appended when clear
+let seq_abs2dlt=(seq)=>{
+	if(!seq.length) return [];
+	let rtv=[[seq[0][0],seq[0][1],100,1]];
+	for(let x=1;x!==seq.length;++x) rtv.push([seq[x][0],seq[x][1],(seq[x][2]-seq[x-1][2]),1]);
+	return rtv;
+};
+let seq_dlt2abs=(seq,baseTime)=>{
+	if(!seq.length) return [];
+	let rtv=[[seq[0][0],seq[0][1],baseTime]];
+	for(let x=1;x!==seq.length;++x) rtv.push([seq[x][0],seq[x][1],(seq[x][2]+baseTime)]);
+	return rtv;
+};
+let putseq=(ele,seq)=>{
+	// directly put (replacing original text)
+	ele.ra(0).at(JSON.stringify(seq));
+};
 let stopseq=1;
 let queuingseq={},queuingseq_serial=0;
 let playseq=(seq)=>{
@@ -109,6 +125,11 @@ let playseq=(seq)=>{
 		queuingseq[serial]=x;
 	};
 	prepare(0,baseTime);
+};
+playseq.stop=()=>{
+	stopseq|=1;
+	for(let x=0;x!==keysDown.length;++x) if(keysDown[x]) keyup(x);
+	for(let i in queuingseq) clearTimeout(queuingseq[i]);
 };
 
 let io_keydown=((evt)=>{
