@@ -20,32 +20,62 @@ currPitchDelta.onchange=()=>{
 	if(tmp!==null) freqs.change_to(parseInt(tmp[0]));
 };
 freqs._change_common=()=>{
-	oscillators.reset();
-	currPitchDelta.ra(0).at(""+freqs.delta);
+	oscillators.resetFreq();
+	currPitchDelta.value=freqs.delta;
 };
 freqs.change_to=(n)=>{ freqs.delta=n; freqs._change_common(); };
 freqs.change_delta=(n)=>{ freqs.delta+=n; freqs._change_common(); };
 console.log(freqs[Hz440id]); // debug
 
+// Edge // BEG
+const __first__audioContext=new AudioContext();
+const __ori__GainNode=GainNode;
+const __ori__OscillatorNode=OscillatorNode;
+GainNode=(()=>{
+	try{
+		new GainNode(__first__audioContext);
+	}catch(e){
+		let rtv=function(audioctx,conf){
+			let tmp=audioctx.createGain();
+			for(let i in conf) tmp[i].value=conf[i];
+			return tmp;
+		};
+		return rtv;
+	}
+	return GainNode;
+})();
+OscillatorNode=(()=>{
+	try{
+		new OscillatorNode(__first__audioContext);
+	}catch(e){
+		let rtv=function(audioctx,conf){
+			let tmp=audioctx.createOscillator();
+			for(let i in conf) tmp[i].value=conf[i];
+			return tmp;
+		};
+		return rtv;
+	}
+	return OscillatorNode;
+})();
+// Edge // END
+
 let audioCtxs = [];
+//let audioCtx = new AudioContext();
 let gainNodes = [];
 let oscillators = [];
-	oscillators.reset=()=>{
+	oscillators.resetFreq=()=>{
 		let r=Math.pow(2,freqs.delta/12.0);
-		for(let x=0;x!==oscillators.length;++x){
-			let oscillator = new OscillatorNode(audioCtxs[x],{detune:0,frequency:freqs[x]*r,type:"triangle"});
-			oscillator.start(0);
-			oscillators[x].disconnect(gainNodes[x]);
-			oscillator.connect(gainNodes[x]);
-			oscillators[x]=oscillator;
-		}
+		for(let x=0;x!==oscillators.length;++x) oscillators[x].frequency.value=freqs[x]*r;
+		return;
 	};
 for(let x=0;x!==keys.length;++x){
 	let audioCtx = new AudioContext();
 	audioCtxs.push(audioCtx);
+	
 	let gainNode = new GainNode(audioCtx,{gain:0});
 	gainNode.connect(audioCtx.destination);
 	gainNodes.push(gainNode);
+	
 	let oscillator = new OscillatorNode(audioCtx,{detune:0,frequency:freqs[x],type:"triangle"});
 	oscillator.connect(gainNode);
 	oscillators.push(oscillator);
@@ -66,7 +96,7 @@ let keydown=(id)=>{
 let keyup=(id)=>{
 	keysDown[id]=0;
 	
-	//gainNodes[id].gain.value=0;
+	//gainNodes[id].gain.value =-> 0;
 	let itvl=setInterval(function(){
 		let val=gainNodes[id].gain.value;
 		//val-=0.0078125;
@@ -78,7 +108,7 @@ let keyup=(id)=>{
 	seq.push([id-Hz440id,"up",new Date().getTime()-baseTime]);
 };
 
-let seq=[]; // [[delta number of 2**(1/12) to Hz440,up_or_down,timing,use_delta?]]
+let seq=[]; // [[delta number of 2**(1/12) to Hz440,"up" or "down",timing,is_use_delta]]
 let lastInput=[];
 let seqs=[]; // array of seq, appended when clear
 let seq_abs2dlt=(seq)=>{
@@ -145,11 +175,9 @@ let io_keydown=((evt)=>{
 		// pitch higher / lower
 		case 38:
 			freqs.change_delta(1);
-			currPitchDelta.value=parseInt(currPitchDelta.value)+1;
 			break;
 		case 40:
 			freqs.change_delta(-1);
-			currPitchDelta.value=parseInt(currPitchDelta.value)-1;
 			break;
 		}
 		return;
