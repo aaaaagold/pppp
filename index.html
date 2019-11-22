@@ -64,6 +64,12 @@ q.ge("btns").ac(
 	})()
 ).ac(
 	(()=>{
+		let div=q.ce("div").sa("class","btn").at("update record (time from 0)");
+		div.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(seq_abs2dlt(seq),0));};
+		return div;
+	})()
+).ac(
+	(()=>{
 		let div=q.ce("div").sa("class","btn").at("update record (delta timing)");
 		div.onclick=()=>{putseq(q.ge("rec"),seq_abs2dlt(seq));};
 		return div;
@@ -73,6 +79,7 @@ q.ge("btns").ac(
 		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300");
 		let last_rpl=q.ce("div").sa("class","btn").at("replay last random");
 		let last_abs=q.ce("div").sa("class","btn").at("update last random");
+		let last_abs0=q.ce("div").sa("class","btn").at("update last random (time from 0)");
 		let last_dlt=q.ce("div").sa("class","btn").at("update last random (delta timing)");
 		div.onclick=()=>{
 			div.last_time=new Date().getTime()-baseTime;
@@ -87,8 +94,9 @@ q.ge("btns").ac(
 		};
 		last_rpl.onclick=()=>{playseq.stop();playseq(div.last_seq);};
 		last_abs.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,div.last_time));};
+		last_abs0.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,0));};
 		last_dlt.onclick=()=>{putseq(q.ge("rec"),div.last_seq);};
-		return q.ce("div").ac(div).at("count ").ac(cnt).ac(last_rpl).ac(last_abs).ac(last_dlt);
+		return q.ce("div").ac(div).at("count ").ac(cnt).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt);
 	})()
 );
 </script>
