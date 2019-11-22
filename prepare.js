@@ -124,6 +124,19 @@ let seq_dlt2abs=(seq,baseTime)=>{
 	for(let x=1;x!==seq.length;++x) rtv.push([seq[x][0],seq[x][1],(seq[x][2]+rtv[x-1][2])]);
 	return rtv;
 };
+let seq_mix2abs=(seq)=>{
+	// baseTime===0
+	if(!seq.length) return [];
+	let rtv=[[seq[0][0],seq[0][1],seq[0][2],]];
+	for(let x=1;x!==seq.length;++x)
+	{
+		let tmp=[seq[x][0],seq[x][1],seq[x][2]];
+		if(seq[x][3]) tmp[2]+=rtv[x-1][2];
+		rtv.push(tmp);
+	}
+	rtv.sort((a,b)=>{return a[2]-b[2];});
+	return rtv;
+};
 let putseq=(ele,seq)=>{
 	// directly put (replacing original text)
 	ele.ra(0).at(JSON.stringify(seq));
@@ -133,6 +146,7 @@ let queuingseq={},queuingseq_serial=0;
 let playseq=(seq)=>{
 	if(!seq.length) return;
 	stopseq&=0;
+	seq=seq_mix2abs(seq);
 	let baseTime=seq[0][2],basefoo=()=>{};
 	let playone=(kid,upordown)=>{
 		if(stopseq) return;
