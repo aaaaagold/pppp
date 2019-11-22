@@ -81,6 +81,7 @@ q.ge("btns").ac(
 		let last_abs=q.ce("div").sa("class","btn").at("update last random");
 		let last_abs0=q.ce("div").sa("class","btn").at("update last random (time from 0)");
 		let last_dlt=q.ce("div").sa("class","btn").at("update last random (delta timing)");
+		div.last_seq=[];
 		div.onclick=()=>{
 			div.last_time=new Date().getTime()-baseTime;
 			div.last_seq=rnd(parseInt(cnt.value));
