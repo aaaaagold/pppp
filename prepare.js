@@ -119,8 +119,9 @@ let seq_abs2dlt=(seq)=>{
 };
 let seq_dlt2abs=(seq,baseTime)=>{
 	if(!seq.length) return [];
+	if(!baseTime) baseTime|=0;
 	let rtv=[[seq[0][0],seq[0][1],baseTime]];
-	for(let x=1;x!==seq.length;++x) rtv.push([seq[x][0],seq[x][1],(seq[x][2]+baseTime)]);
+	for(let x=1;x!==seq.length;++x) rtv.push([seq[x][0],seq[x][1],(seq[x][2]+rtv[x-1][2])]);
 	return rtv;
 };
 let putseq=(ele,seq)=>{
