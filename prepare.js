@@ -13,6 +13,8 @@ const keysOri=[]; for(let x=0;x!==keys.length;++x) keysOri[x]=keys[x];
 	for(let x=keys.length;x--;) if(typeof keys[x]==="string") keys[x]=keys[x].charCodeAt();
 const keysDown=[]; keysDown.length=keys.length;
 const keysRecover=[]; keysRecover.length=keys.length;
+const volumes=[]; for(let x=0;x<keys.length;++x) volumes.push(0);
+	volumes.global=0.25; // a ratio
 const freqs=[]; for(let x=0;x<keys.length;++x) freqs.push(Math.pow(2,(x-Hz440id)/12.0)*440);
 freqs.delta=0;
 currPitchDelta.onchange=()=>{
@@ -89,7 +91,7 @@ let keydown=(id)=>{
 	if(audioCtxs[id].state==="suspended") audioCtxs[id].resume();
 	if(keysRecover[id]){ clearInterval(keysRecover[id]); keysRecover[id]=0; }
 	if(!alreadyDown){
-		gainNodes[id].gain.value=0.25;
+		gainNodes[id].gain.value=(volumes[id]=1)*volumes.global;
 		seq.push([id-Hz440id,"down",new Date().getTime()-baseTime]);
 	}
 };
@@ -98,11 +100,11 @@ let keyup=(id)=>{
 	
 	//gainNodes[id].gain.value =-> 0;
 	let itvl=setInterval(function(){
-		let val=gainNodes[id].gain.value;
+		let val=volumes[id];
 		//val-=0.0078125;
 		val*=0.984375;
-		if(val<1e-4){ keysRecover[id]=0; val=0; clearInterval(itvl); }
-		if(!keysDown[id]) gainNodes[id].gain.value=val;
+		if(val<1e-4){ keysRecover[id]=0; gainNodes[id].gain.value=volumes[id]=val=0; clearInterval(itvl); }
+		if(!keysDown[id]) gainNodes[id].gain.value=(volumes[id]=val)*volumes.global;
 	},1);
 	keysRecover[id]=itvl;
 	seq.push([id-Hz440id,"up",new Date().getTime()-baseTime]);
