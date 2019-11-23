@@ -60,7 +60,7 @@ OscillatorNode=(()=>{
 // Edge // END
 
 let audioCtxs = [];
-//let audioCtx = new AudioContext();
+let audioCtx = new AudioContext();
 let gainNodes = [];
 let oscillators = [];
 	oscillators.resetFreq=()=>{
@@ -69,7 +69,7 @@ let oscillators = [];
 		return;
 	};
 for(let x=0;x!==keys.length;++x){
-	let audioCtx = new AudioContext();
+	//let audioCtx = new AudioContext();
 	audioCtxs.push(audioCtx);
 	
 	let gainNode = new GainNode(audioCtx,{gain:0});
@@ -89,7 +89,7 @@ let keydown=(id)=>{
 	if(audioCtxs[id].state==="suspended") audioCtxs[id].resume();
 	if(keysRecover[id]){ clearInterval(keysRecover[id]); keysRecover[id]=0; }
 	if(!alreadyDown){
-		gainNodes[id].gain.value=1;
+		gainNodes[id].gain.value=0.25;
 		seq.push([id-Hz440id,"down",new Date().getTime()-baseTime]);
 	}
 };
