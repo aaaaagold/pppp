@@ -104,7 +104,7 @@ let keyup=(id)=>{
 		let val=volumes[id];
 		//val-=0.0078125;
 		//val=parseInt(val*0.984375);
-		val=parseInt(val*0.875);
+		val=parseInt(val*0.9375);
 		if(val<1e-4){ keysRecover[id]=0; gainNodes[id].gain.value=volumes[id]=val=0; clearInterval(itvl); }
 		if(!keysDown[id]) gainNodes[id].gain.value=(volumes[id]=val)*volumes.global;
 	},16);
