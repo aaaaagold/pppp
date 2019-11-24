@@ -76,7 +76,8 @@ q.ge("btns").ac(
 	})()
 ).ac(
 	(()=>{
-		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300");
+		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300"),delay=q.ce("input").sa("type","number").sa("value","100");
+		let mega=q.ce("div").sa("class","btn").at("mega last random");
 		let last_rpl=q.ce("div").sa("class","btn").at("replay last random");
 		let last_abs=q.ce("div").sa("class","btn").at("update last random");
 		let last_abs0=q.ce("div").sa("class","btn").at("update last random (time from 0)");
@@ -84,7 +85,8 @@ q.ge("btns").ac(
 		div.last_seq=[];
 		div.onclick=()=>{
 			div.last_time=new Date().getTime()-baseTime;
-			div.last_seq=rnd(parseInt(cnt.value));
+			div.last_seq=rnd(parseInt(cnt.value),Number(delay.value));
+			playseq.stop();
 			playseq(div.last_seq);
 			// ----
 			arr=div.last_seq;
@@ -93,11 +95,19 @@ q.ge("btns").ac(
 			//arr2=arr.concat(shift(arr,6)).concat(arr);//.concat(shift(arr,-12));
 			//console.log(JSON.stringify(arr2));
 		};
+		mega.last_seq=[];
+		mega.onclick=()=>{
+			mega.last_seq=megarnd(div.last_seq);
+			playseq.stop();
+			playseq(mega.last_seq);
+		};
 		last_rpl.onclick=()=>{playseq.stop();playseq(div.last_seq);};
 		last_abs.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,div.last_time));};
 		last_abs0.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,0));};
 		last_dlt.onclick=()=>{putseq(q.ge("rec"),div.last_seq);};
-		return q.ce("div").ac(div).at("count ").ac(cnt).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt);
+		return q.ce("div").ac(div).ac(
+			q.ce("div").at(" count ").ac(cnt).at(" delay ").ac(delay)
+		).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt); // .ac(mega);
 	})()
 );
 </script>
