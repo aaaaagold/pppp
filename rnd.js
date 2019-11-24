@@ -5,9 +5,10 @@ if(!Array.concat) Array.concat=function(arr){
 	for(let x=0;x!==dup.length;++x) rtv.push(dup[x]);
 	return rtv;
 };
-let rnd=(cnt,clip)=>{
+let rnd=(cnt,delay,clip)=>{
 	if(cnt===undefined) cnt=11;
 	if(clip===undefined) clip=[-Hz440id,freqs.length-1-Hz440id];
+	if(delay===undefined || "number"!==typeof delay || isNaN(delay)) delay=100;
 	let rtv=[],clip_min=clip[0],clip_max=clip[1];
 	let lastpitch,dir,samedircnt=0;
 	for(let x=cnt;x--;)
@@ -23,9 +24,16 @@ let rnd=(cnt,clip)=>{
 		if(hzid!==undefined && hzid>clip_max) hzid=clip_max;
 		if(lastpitch!==undefined) dir=hzid-lastpitch;
 		lastpitch=hzid;
-		rtv.push([hzid,"down",100,1]);
-		rtv.push([hzid,"up",100,1]);
+		rtv.push([hzid,"down",delay,1]);
+		rtv.push([hzid,"up",delay,1]);
 	}
+	return rtv;
+};
+let megarnd=(rndres)=>{
+	// TODO
+	let rtv=[];
+	for(let x=3;x--;)
+		rtv=rtv.concat(rndres).concat(shift(rndres,6)).concat(rndres).concat([[0,"none",1000,1]]);
 	return rtv;
 };
 let shift=(arr,delta,clip)=>{
