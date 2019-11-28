@@ -78,11 +78,15 @@ q.ge("btns").ac(
 	(()=>{
 		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300"),delay=q.ce("input").sa("type","number").sa("value","100");
 		let base=q.ce("div").sa("class","btn").at("random a base");
-		let mega=q.ce("div").sa("class","btn").at("mega last random");
+		let mega=q.ce("div").sa("class","btn").at("random with base");
 		let last_rpl=q.ce("div").sa("class","btn").at("replay last random");
 		let last_abs=q.ce("div").sa("class","btn").at("update last random");
 		let last_abs0=q.ce("div").sa("class","btn").at("update last random (time from 0)");
 		let last_dlt=q.ce("div").sa("class","btn").at("update last random (delta timing)");
+		let last_base_rpl=q.ce("div").sa("class","btn").at("replay last base");
+		let last_base_dlt=q.ce("div").sa("class","btn").at("update last base (delta timing)");
+		let last_mega_rpl=q.ce("div").sa("class","btn").at("replay last 'random with base'");
+		let last_mega_dlt=q.ce("div").sa("class","btn").at("update last 'random with base' (delta timing)");
 		div.last_seq=[];
 		div.genseq=()=>{
 			let rtv={};
@@ -115,7 +119,7 @@ q.ge("btns").ac(
 			if(clip_max<clip_min){let tmp=clip_max; clip_max=clip_min; clip_min=tmp;}
 			let clip=[clip_min,clip_max];
 			let delay_=delays[parseInt(Math.random()*delays.length)];
-			let cnt_=parseInt(parseInt(cnt.value)*delay.value/delay_);
+			let cnt_=parseInt(cnt.value)*delay.value; cnt_=parseInt(cnt_/delay_)+(cnt_%delay_!==0);
 			rtv.last_seq=rnd(cnt_,delay_,clip);
 			rtv.last_seq.clip=clip;
 			rtv.last_seq.cnt=cnt_;
@@ -127,15 +131,31 @@ q.ge("btns").ac(
 			playseq.stop();
 			playseq(base.last_seq=base.genseq());
 		};
+		last_base_rpl.onclick=()=>{playseq.stop();playseq(base.last_seq);};
+		last_base_dlt.onclick=()=>{putseq(q.ge("rec"),base.last_seq);};
 		mega.last_seq=[];
-		mega.onclick=()=>{
-			mega.last_seq=megarnd(div.last_seq);
-			playseq.stop();
-			playseq(mega.last_seq);
+		mega.genseq=(base_count)=>{
+			if(!base_count || base_count<0) base_count=2;
+			let rtv={};
+			rtv.bases={}; for(let x=0;x<base_count;++x) rtv.bases[x]=base.genseq();
+			rtv.main=div.genseq();
+			return rtv;
 		};
+		mega.play=(megaseq)=>{
+			for(let x in megaseq.bases) playseq(megaseq.bases[x]);
+			playseq(megaseq.main);
+		};
+		mega.onclick=()=>{
+			playseq.stop();
+			mega.play(mega.last_seq=mega.genseq());
+		};
+		last_mega_rpl.onclick=()=>{playseq.stop();mega.play(mega.last_seq);};
+		last_mega_dlt.onclick=()=>{putseq(q.ge("rec"),mega.last_seq);};
 		return q.ce("div").ac(div).ac(
-			q.ce("div").at(" count ").ac(cnt).at(" delay ").ac(delay)
-		).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt).ac(base); // .ac(mega);
+				q.ce("div").at(" count ").ac(cnt).at(" delay ").ac(delay)
+			).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt).
+			ac(base).ac(last_base_rpl).ac(last_base_dlt).
+			ac(mega).ac(last_mega_rpl).ac(last_mega_dlt);
 	})()
 );
 </script>

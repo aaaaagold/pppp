@@ -148,7 +148,13 @@ let putseq=(ele,seq)=>{
 let stopseq=1;
 let queuingseq={},queuingseq_serial=0;
 let playseq=(seq)=>{
-	if(!seq.length) return;
+	if(!seq.length){
+		if(seq.length!==0) for(let i in seq){
+			playseq(seq[i]); // { "track1":[] , "track2":[] , ... }
+			console.log(i); // debug
+		}
+		return;
+	}
 	stopseq&=0;
 	seq=seq_mix2abs(seq);
 	let baseTime=seq[0][2],basefoo=()=>{};
