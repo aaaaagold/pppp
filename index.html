@@ -77,17 +77,24 @@ q.ge("btns").ac(
 ).ac(
 	(()=>{
 		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300"),delay=q.ce("input").sa("type","number").sa("value","100");
+		let base=q.ce("div").sa("class","btn").at("random a base");
 		let mega=q.ce("div").sa("class","btn").at("mega last random");
 		let last_rpl=q.ce("div").sa("class","btn").at("replay last random");
 		let last_abs=q.ce("div").sa("class","btn").at("update last random");
 		let last_abs0=q.ce("div").sa("class","btn").at("update last random (time from 0)");
 		let last_dlt=q.ce("div").sa("class","btn").at("update last random (delta timing)");
 		div.last_seq=[];
+		div.genseq=()=>{
+			let rtv={};
+			let at_time=new Date().getTime()-baseTime;
+			let seq=rnd(parseInt(cnt.value),Number(delay.value));
+			rtv.last_seq=seq;
+			rtv.last_seq.at_time=at_time;
+			return rtv.last_seq;
+		};
 		div.onclick=()=>{
-			div.last_time=new Date().getTime()-baseTime;
-			div.last_seq=rnd(parseInt(cnt.value),Number(delay.value));
 			playseq.stop();
-			playseq(div.last_seq);
+			playseq((div.last_seq=div.genseq()));
 			// ----
 			arr=div.last_seq;
 			console.log(JSON.stringify(arr));
@@ -95,19 +102,40 @@ q.ge("btns").ac(
 			//arr2=arr.concat(shift(arr,6)).concat(arr);//.concat(shift(arr,-12));
 			//console.log(JSON.stringify(arr2));
 		};
+		last_rpl.onclick=()=>{playseq.stop();playseq(div.last_seq);};
+		last_abs.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,div.last_time));};
+		last_abs0.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,0));};
+		last_dlt.onclick=()=>{putseq(q.ge("rec"),div.last_seq);};
+		base.last_seq=[];
+		base.genseq=()=>{
+			let rtv={};
+			let delays=[50]; for(let x=1;x<11;++x) delays.push(x*100);
+			let clip_min=(parseInt(Math.random()*freqs.length)+0)>>1;
+			let clip_max=(parseInt(Math.random()*freqs.length)+freqs.length)>>1;
+			if(clip_max<clip_min){let tmp=clip_max; clip_max=clip_min; clip_min=tmp;}
+			let clip=[clip_min,clip_max];
+			let delay_=delays[parseInt(Math.random()*delays.length)];
+			let cnt_=parseInt(parseInt(cnt.value)*delay.value/delay_);
+			rtv.last_seq=rnd(cnt_,delay_,clip);
+			rtv.last_seq.clip=clip;
+			rtv.last_seq.cnt=cnt_;
+			rtv.last_seq.delay=delay_;
+			console.log(rtv.last_seq);
+			return rtv.last_seq;
+		};
+		base.onclick=()=>{
+			playseq.stop();
+			playseq(base.last_seq=base.genseq());
+		};
 		mega.last_seq=[];
 		mega.onclick=()=>{
 			mega.last_seq=megarnd(div.last_seq);
 			playseq.stop();
 			playseq(mega.last_seq);
 		};
-		last_rpl.onclick=()=>{playseq.stop();playseq(div.last_seq);};
-		last_abs.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,div.last_time));};
-		last_abs0.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,0));};
-		last_dlt.onclick=()=>{putseq(q.ge("rec"),div.last_seq);};
 		return q.ce("div").ac(div).ac(
 			q.ce("div").at(" count ").ac(cnt).at(" delay ").ac(delay)
-		).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt); // .ac(mega);
+		).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt).ac(base); // .ac(mega);
 	})()
 );
 </script>
