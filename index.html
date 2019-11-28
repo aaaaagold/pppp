@@ -110,8 +110,8 @@ q.ge("btns").ac(
 		base.genseq=()=>{
 			let rtv={};
 			let delays=[50]; for(let x=1;x<11;++x) delays.push(x*100);
-			let clip_min=(parseInt(Math.random()*freqs.length)+0)>>1;
-			let clip_max=(parseInt(Math.random()*freqs.length)+freqs.length)>>1;
+			let clip_min=((parseInt(Math.random()*freqs.length)+0)>>1)-Hz440id;
+			let clip_max=((parseInt(Math.random()*freqs.length)+freqs.length)>>1)-Hz440id;
 			if(clip_max<clip_min){let tmp=clip_max; clip_max=clip_min; clip_min=tmp;}
 			let clip=[clip_min,clip_max];
 			let delay_=delays[parseInt(Math.random()*delays.length)];
