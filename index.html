@@ -195,7 +195,7 @@ q.ge("btns").ac(
 	(()=>{
 		let test=q.ce("div").sa("class","btn").at("test");
 		let main_checked=q.ce("input").sa("type","checkbox").sa("checked","");
-		let main_count=q.ce("input").sa("type","number").sa("value","300"),main_delay=q.ce("input").sa("type","number").sa("value","100"),main_repeat=q.ce("input").sa("type","number").sa("value","4");
+		let main_count=q.ce("input").sa("type","number").sa("value","4"),main_delay=q.ce("input").sa("type","number").sa("value","100"),main_repeat=q.ce("input").sa("type","number").sa("value","30");
 		let base_count=q.ce("input").sa("type","number").sa("value","0"),time_min=q.ce("input").sa("type","number").sa("value","2"),time_max=q.ce("input").sa("type","number").sa("value","5");
 		let val_1=q.ce("input").sa("value","1"),val_2=q.ce("input").sa("value","1"),val_3=q.ce("input").sa("value","1");
 		let replay=q.ce("div").sa("class","btn").at("replay");
@@ -214,7 +214,10 @@ q.ge("btns").ac(
 			let main_time_rpt=main_time*(main_rpt+1);
 			if(main_checked.checked){
 				let tmp=rnd(main_cnt,main_dly),arr=[].concat(tmp);
-				for(let x=main_rpt;x-->0;) arr=arr.concat(tmp);
+				for(let x=main_rpt;x-->0;){
+					arr.push([0,"none",0,1]);
+					arr=arr.concat(tmp);
+				}
 				rtv.main=arr;
 			}
 			let seq_segs=[]; seq_segs.length=parseInt(base_count.value);
