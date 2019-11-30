@@ -12,7 +12,7 @@ let q={},d=document;
 q.ce=function(h){return d.createElement(h);};
 q.ge=function(i){return d.getElementById(i);};
 Array.prototype.back=function(){return this.length==0?undefined:this[this.length-1];};
-HTMLElement.prototype.ac=function(c){this.appendChild(c); return this;};
+HTMLElement.prototype.ac=function(c){if(c!==undefined)this.appendChild(c); return this;};
 HTMLElement.prototype.ga=function(a){return this.getAttribute(a);};
 HTMLElement.prototype.sa=function(a,v){this.setAttribute(a,v);return this;};
 HTMLElement.prototype.at=function(t){this.ac(d.createTextNode(t));return this;};
@@ -76,19 +76,21 @@ q.ge("btns").ac(
 	})()
 ).ac(
 	(()=>{
-		let div=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300"),delay=q.ce("input").sa("type","number").sa("value","100");
+		let main=q.ce("div").sa("class","btn").at("random"),cnt=q.ce("input").sa("type","number").sa("value","300"),delay=q.ce("input").sa("type","number").sa("value","100");
 		let base=q.ce("div").sa("class","btn").at("random a base");
 		let mega=q.ce("div").sa("class","btn").at("random with base");
-		let last_rpl=q.ce("div").sa("class","btn").at("replay last random");
-		let last_abs=q.ce("div").sa("class","btn").at("update last random");
-		let last_abs0=q.ce("div").sa("class","btn").at("update last random (time from 0)");
-		let last_dlt=q.ce("div").sa("class","btn").at("update last random (delta timing)");
+		let mega_basecnt=q.ce("input").sa("type","number").sa("value","2");
+		let mega_repeat=q.ce("input").sa("type","number").sa("value","1");
+		let last_main_rpl=q.ce("div").sa("class","btn").at("replay last random");
+		let last_main_abs=q.ce("div").sa("class","btn").at("update last random");
+		let last_main_abs0=q.ce("div").sa("class","btn").at("update last random (time from 0)");
+		let last_main_dlt=q.ce("div").sa("class","btn").at("update last random (delta timing)");
 		let last_base_rpl=q.ce("div").sa("class","btn").at("replay last base");
 		let last_base_dlt=q.ce("div").sa("class","btn").at("update last base (delta timing)");
 		let last_mega_rpl=q.ce("div").sa("class","btn").at("replay last 'random with base'");
 		let last_mega_dlt=q.ce("div").sa("class","btn").at("update last 'random with base' (delta timing)");
-		div.last_seq=[];
-		div.genseq=()=>{
+		main.last_seq=[];
+		main.genseq=()=>{
 			let rtv={};
 			let at_time=new Date().getTime()-baseTime;
 			let seq=rnd(parseInt(cnt.value),Number(delay.value));
@@ -96,20 +98,20 @@ q.ge("btns").ac(
 			rtv.last_seq.at_time=at_time;
 			return rtv.last_seq;
 		};
-		div.onclick=()=>{
+		main.onclick=()=>{
 			playseq.stop();
-			playseq((div.last_seq=div.genseq()));
+			playseq((main.last_seq=main.genseq()));
 			// ----
-			arr=div.last_seq;
+			arr=main.last_seq;
 			console.log(JSON.stringify(arr));
 			// ----
 			//arr2=arr.concat(shift(arr,6)).concat(arr);//.concat(shift(arr,-12));
 			//console.log(JSON.stringify(arr2));
 		};
-		last_rpl.onclick=()=>{playseq.stop();playseq(div.last_seq);};
-		last_abs.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,div.last_time));};
-		last_abs0.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(div.last_seq,0));};
-		last_dlt.onclick=()=>{putseq(q.ge("rec"),div.last_seq);};
+		last_main_rpl.onclick=()=>{playseq.stop();playseq(main.last_seq);};
+		last_main_abs.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(main.last_seq,main.last_time));};
+		last_main_abs0.onclick=()=>{putseq(q.ge("rec"),seq_dlt2abs(main.last_seq,0));};
+		last_main_dlt.onclick=()=>{putseq(q.ge("rec"),main.last_seq);};
 		base.last_seq=[];
 		base.genseq=()=>{
 			let rtv={};
@@ -127,6 +129,27 @@ q.ge("btns").ac(
 			console.log(rtv.last_seq);
 			return rtv.last_seq;
 		};
+		if(0)base.genseq=(segtime_in_sec)=>{
+			let rtv={};
+			let delays=[50]; for(let x=1;x<11;++x) delays.push(x*100);
+			let clip_min=((parseInt(Math.random()*freqs.length)+0)>>1)-Hz440id;
+			let clip_max=((parseInt(Math.random()*freqs.length)+freqs.length)>>1)-Hz440id;
+			if(clip_max<clip_min){let tmp=clip_max; clip_max=clip_min; clip_min=tmp;}
+			let clip=[clip_min,clip_max];
+			let delay_=delays[parseInt(Math.random()*delays.length)];
+			let cnt_=parseInt(cnt.value)*delay.value; cnt_=parseInt(cnt_/delay_)+(cnt_%delay_!==0);
+			let segcnt=(segtime_in_sec>0)?parseInt(segtime_in_sec*1000/(delay_*2)):cnt_;
+			let repeatcnt=parseInt(cnt_/segcnt)+(cnt_%segcnt!==0);
+			rtv.last_seq=rnd(segcnt,delay_,clip);
+			for(let x=repeatcnt;--x>0;) rtv.last_seq=rtv.last_seq.concat(rtv.last_seq);
+			rtv.last_seq.clip=clip;
+			rtv.last_seq.cnt=cnt_;
+			rtv.last_seq.segcnt=segcnt;
+			rtv.last_seq.repeatcnt=repeatcnt;
+			rtv.last_seq.delay=delay_;
+			console.log(rtv.last_seq);
+			return rtv.last_seq;
+		};
 		base.onclick=()=>{
 			playseq.stop();
 			playseq(base.last_seq=base.genseq());
@@ -135,10 +158,17 @@ q.ge("btns").ac(
 		last_base_dlt.onclick=()=>{putseq(q.ge("rec"),base.last_seq);};
 		mega.last_seq=[];
 		mega.genseq=(base_count)=>{
-			if(!base_count || base_count<0) base_count=2;
+			if(base_count>=0);else base_count=parseInt(mega_basecnt.value);
+			if(base_count>=0);else base_count=2;
+			base_count=parseInt(base_count);
 			let rtv={};
 			rtv.bases={}; for(let x=0;x<base_count;++x) rtv.bases[x]=base.genseq();
-			rtv.main=div.genseq();
+			if(0)for(let x=0;x<base_count;++x){
+				let sec=parseInt(Math.random()*9)+3;
+				console.log("base",x,sec);
+				rtv.bases[x]=base.genseq(sec);
+			}
+			rtv.main=main.genseq();
 			return rtv;
 		};
 		mega.play=(megaseq)=>{
@@ -151,11 +181,15 @@ q.ge("btns").ac(
 		};
 		last_mega_rpl.onclick=()=>{playseq.stop();mega.play(mega.last_seq);};
 		last_mega_dlt.onclick=()=>{putseq(q.ge("rec"),mega.last_seq);};
-		return q.ce("div").ac(div).ac(
+		return q.ce("div").ac(main).ac(
 				q.ce("div").at(" count ").ac(cnt).at(" delay ").ac(delay)
-			).ac(last_rpl).ac(last_abs).ac(last_abs0).ac(last_dlt).
+			).ac(last_main_rpl).ac(last_main_abs).ac(last_main_abs0).ac(last_main_dlt).
 			ac(base).ac(last_base_rpl).ac(last_base_dlt).
-			ac(mega).ac(last_mega_rpl).ac(last_mega_dlt);
+			ac(mega).ac(
+				q.ce("div").at(" base count ").ac(mega_basecnt)
+				//q.ce("div").at(" repeat ").ac(mega_repeat)
+			).ac(last_mega_rpl).ac(last_mega_dlt);
+		// ?_? //
 	})()
 );
 </script>
