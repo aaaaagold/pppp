@@ -191,6 +191,57 @@ q.ge("btns").ac(
 			).ac(last_mega_rpl).ac(last_mega_dlt);
 		// ?_? //
 	})()
+).ac(
+	(()=>{
+		let test=q.ce("div").sa("class","btn").at("test");
+		let main_checked=q.ce("input").sa("type","checkbox");
+		let main_count=q.ce("input").sa("type","number").sa("value","300"),main_delay=q.ce("input").sa("type","number").sa("value","100");
+		let base_count=q.ce("input").sa("type","number").sa("value","2"),time_min=q.ce("input").sa("type","number").sa("value","1"),time_max=q.ce("input").sa("type","number").sa("value","10");
+		let val_1=q.ce("input").sa("value","1"),val_2=q.ce("input").sa("value","1"),val_3=q.ce("input").sa("value","1");
+		let update=q.ce("div").sa("class","btn").at("update");
+		test.last_seq=[];
+		test.genseq=()=>{
+			let rtv={};
+			let base_delays=[50]; for(let x=1;x<11;++x) base_delays.push(x*100);
+			let time_m=Number(time_min.value),time_M=Number(time_max.value);
+				if(time_m<1) time_m=1;
+				if(time_M<1) time_M=1;
+				if(time_M<time_m){let tmp=time_m;time_m=time_M;time_M=tmp;}
+			let time_d=time_M-time_m;
+			let main_cnt=parseInt(main_count.value),main_dly=parseInt(main_delay.value);
+			let main_time=main_cnt*(main_dly*2);
+			if(main_checked.checked) rtv.main=rnd(main_cnt,main_dly);
+			let seq_segs=[]; seq_segs.length=parseInt(base_count.value);
+			for(let x=0;x!==seq_segs.length;++x){
+				let time_once=Math.random()*time_d+time_m; time_once*=1000;
+				let delay=base_delays[parseInt(Math.random()*base_delays.length)];
+				let cnt=parseInt(time_once/(delay<<1)); cnt+=cnt*(delay<<1)<time_once;
+				seq_segs[x]=seq_mix2abs(rnd(cnt,delay));
+			}
+			let longest_seg_time=0;
+			for(let x=0;x!==seq_segs.length;++x){
+				let seg=seq_segs[x];
+				let tmp=seg[seg.length-1][2];
+				if(longest_seg_time<tmp) longest_seg_time=tmp;
+			}
+			for(let x=0;x!==seq_segs.length;++x){
+				rtv['base_'+x]=seq_repeatTillTime(seq_repeatTillTime(seq_segs[x],longest_seg_time),main_time);
+			}
+			return rtv;
+		};
+		test.onclick=()=>{
+			playseq.stop();
+			playseq(test.last_seq=test.genseq());
+		};
+		update.onclick=()=>{putseq(q.ge("rec"),test.last_seq);};
+		return q.ce("div").ac(test).ac(
+				q.ce("div").ac(main_checked).at(" count ").ac(main_count).at(" delay ").ac(main_delay)
+			).ac(
+				q.ce("div").at(" base count ").ac(base_count)
+			).ac(
+				q.ce("div").at(" min time ").ac(time_min).at(" max time ").ac(time_max)
+			).ac(update);
+	})()
 );
 </script>
 </body>
