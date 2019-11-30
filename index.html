@@ -194,10 +194,11 @@ q.ge("btns").ac(
 ).ac(
 	(()=>{
 		let test=q.ce("div").sa("class","btn").at("test");
-		let main_checked=q.ce("input").sa("type","checkbox");
-		let main_count=q.ce("input").sa("type","number").sa("value","300"),main_delay=q.ce("input").sa("type","number").sa("value","100");
-		let base_count=q.ce("input").sa("type","number").sa("value","1"),time_min=q.ce("input").sa("type","number").sa("value","5"),time_max=q.ce("input").sa("type","number").sa("value","20");
+		let main_checked=q.ce("input").sa("type","checkbox").sa("checked","");
+		let main_count=q.ce("input").sa("type","number").sa("value","300"),main_delay=q.ce("input").sa("type","number").sa("value","100"),main_repeat=q.ce("input").sa("type","number").sa("value","4");
+		let base_count=q.ce("input").sa("type","number").sa("value","0"),time_min=q.ce("input").sa("type","number").sa("value","2"),time_max=q.ce("input").sa("type","number").sa("value","5");
 		let val_1=q.ce("input").sa("value","1"),val_2=q.ce("input").sa("value","1"),val_3=q.ce("input").sa("value","1");
+		let replay=q.ce("div").sa("class","btn").at("replay");
 		let update=q.ce("div").sa("class","btn").at("update");
 		test.last_seq=[];
 		test.genseq=()=>{
@@ -208,9 +209,14 @@ q.ge("btns").ac(
 				if(time_M<1) time_M=1;
 				if(time_M<time_m){let tmp=time_m;time_m=time_M;time_M=tmp;}
 			let time_d=time_M-time_m;
-			let main_cnt=parseInt(main_count.value),main_dly=parseInt(main_delay.value);
+			let main_cnt=parseInt(main_count.value),main_dly=parseInt(main_delay.value),main_rpt=parseInt(main_repeat.value);
 			let main_time=main_cnt*(main_dly*2);
-			if(main_checked.checked) rtv.main=rnd(main_cnt,main_dly);
+			let main_time_rpt=main_time*(main_rpt+1);
+			if(main_checked.checked){
+				let tmp=rnd(main_cnt,main_dly),arr=[].concat(tmp);
+				for(let x=main_rpt;x-->0;) arr=arr.concat(tmp);
+				rtv.main=arr;
+			}
 			let seq_segs=[]; seq_segs.length=parseInt(base_count.value);
 			for(let x=0;x!==seq_segs.length;++x){
 				let time_once=Math.random()*time_d+time_m; time_once*=1000;
@@ -225,22 +231,33 @@ q.ge("btns").ac(
 				if(longest_seg_time<tmp) longest_seg_time=tmp;
 			}
 			for(let x=0;x!==seq_segs.length;++x){
-				rtv['base_'+x]=seq_repeatTillTime(seq_repeatTillTime(seq_segs[x],longest_seg_time),main_time);
+				rtv['base_'+x]=seq_repeatTillTime(
+					seq_repeatTillTime(
+						seq_repeatTillTime(
+							seq_segs[x],longest_seg_time
+						),main_time
+					),main_time_rpt
+				);
 			}
 			return rtv;
 		};
+		test.play=()=>{
+			playseq(test.last_seq);
+		};
 		test.onclick=()=>{
 			playseq.stop();
-			playseq(test.last_seq=test.genseq());
+			test.last_seq=test.genseq();
+			test.play();
 		};
+		replay.onclick=()=>{playseq.stop();test.play();};
 		update.onclick=()=>{putseq(q.ge("rec"),test.last_seq);};
 		return q.ce("div").ac(test).ac(
-				q.ce("div").ac(main_checked).at(" count ").ac(main_count).at(" delay ").ac(main_delay)
+				q.ce("div").ac(main_checked).at(" count ").ac(main_count).at(" delay ").ac(main_delay).at(" repeat ").ac(main_repeat)
 			).ac(
 				q.ce("div").at(" base count ").ac(base_count)
 			).ac(
 				q.ce("div").at(" min time ").ac(time_min).at(" max time ").ac(time_max)
-			).ac(update);
+			).ac(replay).ac(update);
 	})()
 );
 </script>
