@@ -117,7 +117,7 @@ let lastInput=[];
 let seqs=[]; // array of seq, appended when clear
 let seq_abs2dlt=(seq)=>{
 	if(!seq.length) return [];
-	let rtv=[[seq[0][0],seq[0][1],100,1]];
+	let rtv=[[seq[0][0],seq[0][1],seq[0][2],1]];
 	for(let x=1;x!==seq.length;++x) rtv.push([seq[x][0],seq[x][1],(seq[x][2]-seq[x-1][2]),1]);
 	return rtv;
 };
@@ -129,7 +129,6 @@ let seq_dlt2abs=(seq,baseTime)=>{
 	return rtv;
 };
 let seq_mix2abs=(seq)=>{
-	// baseTime===0
 	if(!seq.length) return [];
 	let rtv=[[seq[0][0],seq[0][1],seq[0][2],]];
 	for(let x=1;x!==seq.length;++x)
@@ -139,6 +138,19 @@ let seq_mix2abs=(seq)=>{
 		rtv.push(tmp);
 	}
 	rtv.sort((a,b)=>{return a[2]-b[2];});
+	return rtv;
+};
+let seq_repeatTillTime=(seq,time)=>{
+	if(!seq.length) return [];
+	let rtv=[];
+	seq=seq_mix2abs(seq);
+	let time_once=seq[seq.length-1][2];
+	let cnt=parseInt(time/time_once);
+	seq=seq_abs2dlt(seq);
+	for(let x=0;x!==cnt;++x){
+		rtv=rtv.concat(seq);
+		rtv.push([0,"none",0,1]);
+	}
 	return rtv;
 };
 let putseq=(ele,seq)=>{
