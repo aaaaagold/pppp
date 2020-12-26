@@ -5,7 +5,7 @@ const currPitchDelta=q.ge("currPitchDelta");
 // divs end
 //const keys=['A','S','E','D','R','F','G','Y','H','U','J','I','K','L']; // until ver. @ 2019/11/04
 const keys=[
-	'Z','X','D','C','F','Q','2','W', // Mi ... Si
+	     'Z','X','D','C','F','Q','2','W', // Mi ... Si
 	'\n','E','4','R','5','T','Y','7','U','8','I','9','O','P', // Do ... Do
 	'\n',189,'V','G','B','N','J','M','K', // Do# ...
 ]; // dev.er setting
