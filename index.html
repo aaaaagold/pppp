@@ -35,10 +35,10 @@ document.body.addEventListener('keyup',io_keyup);
 
 for(let strt=0,ende;(ende=keysOri.indexOf('\n',strt))||true;){
 	if(ende===-1){
-		q.ge("keys").at(JSON.stringify(keysOri.slice(strt)));
+		q.ge("keys").ac( q.ce("div").at(JSON.stringify(keysOri.slice(strt))) );
 		break;
 	}else{
-		q.ge("keys").at(JSON.stringify(keysOri.slice(strt,ende)));
+		q.ge("keys").ac( q.ce("div").at(JSON.stringify(keysOri.slice(strt,ende))) );
 		strt=ende+1;
 	}
 }
