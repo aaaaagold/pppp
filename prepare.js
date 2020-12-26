@@ -1,5 +1,6 @@
 const baseTime=new Date().getTime();
 // divs
+const volume_global=q.ge("volume-global").ae("input",function(){let v=Number(this.value);if(!isNaN(v))volumes.global=v/100.0;});
 const currPitchDelta=q.ge("currPitchDelta");
 // divs end
 //const keys=['A','S','E','D','R','F','G','Y','H','U','J','I','K','L']; // until ver. @ 2019/11/04
