@@ -33,7 +33,15 @@ HTMLElement.prototype.ae=function(e,f){
 document.body.addEventListener('keydown',io_keydown);
 document.body.addEventListener('keyup',io_keyup);
 
-q.ge("keys").at(JSON.stringify(keysOri));
+for(let strt=0,ende;(ende=keysOri.indexOf('\n',strt))||true;){
+	if(ende===-1){
+		q.ge("keys").at(JSON.stringify(keysOri.slice(strt)));
+		break;
+	}else{
+		q.ge("keys").at(JSON.stringify(keysOri.slice(strt,ende)));
+		strt=ende+1;
+	}
+}
 q.ge("btns").ac(
 	(()=>{
 		let div=q.ce("div").sa("class","btn").at("input and play record");
