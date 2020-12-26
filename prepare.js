@@ -17,7 +17,7 @@ const keysDown=[]; keysDown.length=keys.length;
 const keysRecover=[]; keysRecover.length=keys.length;
 const volumes=[]; for(let x=0;x<keys.length;++x) volumes.push(0);
 	volumes.max=1<<16; // max val of volume
-	{ let v=Number(volume_global.value); if(!isNaN(v)) volumes.global=tmp/100.0/volumes.max; } // (a ratio) / (resize to 0..1)
+	{ let v=Number(volume_global.value); if(!isNaN(v)) volumes.global=v/100.0/volumes.max; } // (a ratio) / (resize to 0..1)
 const freqs=[]; for(let x=0;x<keys.length;++x) freqs.push(Math.pow(2,(x-Hz440id)/12.0)*440);
 freqs.delta=0;
 currPitchDelta.onchange=()=>{
