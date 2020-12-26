@@ -17,10 +17,16 @@ HTMLElement.prototype.ga=function(a){return this.getAttribute(a);};
 HTMLElement.prototype.sa=function(a,v){this.setAttribute(a,v);return this;};
 HTMLElement.prototype.at=function(t){this.ac(d.createTextNode(t));return this;};
 HTMLElement.prototype.ra=function(n){let arr=this.childNodes;while(arr.length!=0&&arr.length>n)this.removeChild(arr[arr.length-1]);return this;};
+HTMLElement.prototype.ae=function(e,f){
+	if(this.attachEvent) this.attachEvent("on"+e,f);
+	else if(this.addEventListener) this.addEventListener(e,f);
+	else console.warn("not support");
+	return this;
+};
 </script>
 </head>
 <body>
-<div id="root"><div id="keys"></div><div>currPitchDelta <input id="currPitchDelta" type=number value=0></div><div id="btns" class="sparse22"></div><div id="rec">[]</div></div>
+<div id="root"><div id="keys"></div><div>volume <input id="volume-global" type=number value=100 placeholder="max = 100 and can be set beyond it"></div><div>currPitchDelta <input id="currPitchDelta" type=number value=0></div><div id="btns" class="sparse22"></div><div id="rec">[]</div></div>
 <script src="prepare.js"></script>
 <script src="rnd.js"></script>
 <script>
