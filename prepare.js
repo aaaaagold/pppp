@@ -5,9 +5,9 @@ const currPitchDelta=q.ge("currPitchDelta");
 // divs end
 //const keys=['A','S','E','D','R','F','G','Y','H','U','J','I','K','L']; // until ver. @ 2019/11/04
 const keys=[
-	     'Z','X','D','C','F','Q','2','W', // Mi ... Si
-	'\n','E','4','R','5','T','Y','7','U','8','I','9','O','P', // Do ... Do
-	'\n',189,'V','G','B','N','J','M','K', // Do# ...
+	'Z','X','D','C','F','Q','2','W', // Mi ... Si
+	'E','4','R','5','T','Y','7','U','8','I','9','O','P', // Do ... Do
+	189,'V','G','B','N','J','M','K', // Do# ...
 ]; // dev.er setting
 const Hz440id=keys.indexOf('I'); // dev.er setting
 const keysOri=[]; for(let x=0;x!==keys.length;++x) keysOri[x]=keys[x];
